@@ -4,6 +4,8 @@ You can use the [editor on GitHub](https://github.com/wanwanbooboo/stray-dog/edi
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
+IF YOU WANT TO SEE MY REPOSITORY, [CLICK HERE.](https://github.com/wanwanbooboo/stray-dog)
+
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
