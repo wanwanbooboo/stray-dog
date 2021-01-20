@@ -1,0 +1,9 @@
+Function getHyperlink(target As Range) As String
+
+        If target.Hyperlinks.Count > 0 Then
+            getHyperlink = target.Hyperlinks(1).Address
+        End If
+    
+
+End Function
+
