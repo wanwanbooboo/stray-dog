@@ -1,0 +1,56 @@
+Sub 売上伝票印刷転記()
+  'gakkenVBA 6-01を参照
+
+    Dim num As Integer '品目数
+    Dim button As Integer  'Yes or No
+    Dim cell As Range '一覧の一番下のセル
+    Dim table1 As String
+    Dim table2 As String
+    table1 = "売上伝票"
+    table2 = "伝票一覧"
+    Application.ScreenUpdating = False  '画面の更新をオフ
+    On Error GoTo errorhandler  'SpecialCellsメソッドは指定した種類のセルがない場合エラーになるため
+        
+    num = Range("A12:A20").SpecialCells(xlCellTypeConstants).Count  'データが入力されているセルの個数を取得
+    If Range("A3").Value = "" Then  '顧客IDが空ならストップ
+            MsgBox "顧客IDを確認してください"
+            Exit Sub
+    End If
+    If Range("D12:D20").SpecialCells(xlCellTypeConstants).Count <> num Then  '数量が入力されていないならストップ
+            MsgBox "数量を確認してください"
+            Exit Sub
+    End If
+        
+        With Worksheets(table1)
+            .PrintPreview  '売上伝票の印刷プレビューを表示
+            
+            button = MsgBox("転記後、データ削除します", vbYesNo, "転記/削除確認")
+            If button = vbNo Then  '削除しないならストップ
+                Exit Sub
+            End If
+        
+            Set cell = Worksheets(table2).Range("A1048576").End(xlUp).Offset(1)  '伝票一覧の最下セルから上って表の最下セルを取得
+            .Range("E3").Copy
+            cell.Resize(num).PasteSpecial xlPasteValuesAndNumberFormats  'cellを基準として 行方向にnumだけ広げた範囲にコピーしたセル値を貼り付け
+            .Range("E4").Copy
+            cell.Offset(0, 1).Resize(num).PasteSpecial xlPasteValues  'cellの１列右を基準として 行方向にnumだけ広げた範囲にコピーしたセル値を貼り付け  '品目の
+            .Range("A3").Copy
+            cell.Offset(0, 2).Resize(num).PasteSpecial xlPasteValues  'cellの２列右を基準として 行方向にnumだけ広げた範囲にコピーしたセル値を貼り付け
+            .Range("A4").Copy
+            cell.Offset(0, 3).Resize(num).PasteSpecial xlPasteValues  'cellの３列右を基準として 行方向にnumだけ広げた範囲にコピーしたセル値を貼り付け
+            .Range("A12").Resize(num, 5).Copy  'セルA12を基準としてnum行5列広げた範囲をコピー
+            cell.Offset(0, 4).PasteSpecial xlPasteValuesAndNumberFormats  'cellの４列右を基準としてコピーしたセル値を貼り付け
+            
+            .Range("E4").Value = .Range("E4").Value + 1  '伝票No.に１を足しておく
+            .Range("A3,A12:A20,D12:D20").ClearContents  '次の時のために売上伝票シートの入力場所を削除しておく
+    
+        End With
+    
+    Set cell = Nothing  'メモリの解放（参照解除）
+    Application.ScreenUpdating = True  '画面更新をオンにする
+    Exit Sub
+
+errorhandler:
+    MsgBox Err.Description  'エラー処理
+End Sub
+
