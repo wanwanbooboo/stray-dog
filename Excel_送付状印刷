@@ -18,8 +18,10 @@ Sub 送付状印刷()
                 .Range("A6").Value = Cells(r, 3).Value & "様"    '名前を送付状に入力
                 .Range("A7").Value = Cells(r, 4).Value    '電話番号を送付状に入力
                 .Range("A8").Value = Cells(r, 5).Value    'FAX番号を送付状に入力
-                .PrintOut    'プリントアウト
+                .PrintPreview    'プレビューを見る
+'                .PrintOut    'プリント部分はコメントアウトしてある
             End With
          End If
     Next
 End Sub
+
