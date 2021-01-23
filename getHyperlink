@@ -1,6 +1,8 @@
-Function getHyperlink(target As Range) As String
+Function getHyperlink(target As Range, Optional default_value As Variant) As String
 
-        If target.Hyperlinks.Count > 0 Then
+        If target.Hyperlinks.Count <> 1 Then
+            getHyperlink = default_value  'If cell does not contain a hyperlink, return default_value.
+        Else
             getHyperlink = target.Hyperlinks(1).Address
         End If
     
