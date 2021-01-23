@@ -1,0 +1,25 @@
+Sub 送付状印刷()
+
+    Dim last As Long
+    Dim r As Long
+    Dim roster As String
+    Dim letter As String
+    Dim check As String
+    roster = "名簿"   'ワークシート名の入力
+    letter = "送付状"    'ワークシート名の入力
+    check = "要"    '「要」のある行だけ印刷
+    
+    last = Range("A3").End(xlDown).row  '表の最終行を取得
+    For r = 4 To last
+        Worksheets(roster).Select   'アクティブなシートが不明のため、シートを先に指定しておく
+        If Cells(r, 6).Value = check Then    '「要」のある行だけ印刷
+            With Worksheets(letter)          ' 送付状のシートに移る
+                .Range("A5").Value = Cells(r, 2).Value    '会社名を送付状に入力
+                .Range("A6").Value = Cells(r, 3).Value & "様"    '名前を送付状に入力
+                .Range("A7").Value = Cells(r, 4).Value    '電話番号を送付状に入力
+                .Range("A8").Value = Cells(r, 5).Value    'FAX番号を送付状に入力
+                .PrintOut    'プリントアウト
+            End With
+         End If
+    Next
+End Sub
