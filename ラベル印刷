@@ -1,0 +1,82 @@
+Sub ラベル印刷()
+
+    Dim class_terms       As String  '区分条件
+    Dim sex_terms          As String  '性別条件
+    Dim region_terms     As String  '地区条件
+    Dim cell_num            As Integer  'セルの数（データ数チェック用）
+    Dim data                    As Range  '抽出データ
+    Dim print_num          As Long  '転記件数(ループ上限用)
+    Dim base_cell            As Range  '転記元セル
+    Dim destination_cell As Range  '転記先セル
+    Dim str                       As String  '文字列
+    Dim counts                As Long  '件数（ループカウント用）
+    Dim start_position    As Integer  '名前が始まる位置（フォントサイズ変更用）
+    Dim str_num             As Integer  '名前、住所などの全文字数
+    Dim table1                As String
+    Dim table2                As String
+    Dim table3                As String
+    Dim table4                As String
+    
+    Const lable_num      As Integer = 2  'ラベルの列数を定数として定義（印刷するラベルの種類に合わせて変更できるようにしている）
+    
+    table1 = "条件指定"
+    table2 = "顧客名簿"
+    table3 = "印刷名簿"
+    table4 = "ラベル"
+    
+    class_terms = Worksheets(table1).Range("D5").Value  '区分条件を取得
+    sex_terms = Worksheets(table1).Range("D7").Value  '性別条件を取得
+    region_terms = Worksheets(table1).Range("D9").Value  '地区条件を取得
+
+    With Worksheets(table2).Range("A1").CurrentRegion  '顧客名簿の範囲すべてを取得
+            cell_num = .Columns.Count  '名簿の列数を取得（フィルター後、該当数が0になってないか確認用）
+            If class_terms <> "" Then
+                .AutoFilter field:=6, Criteria1:=class_terms  '区分条件が空白でないなら、6列目から区分条件に当てはまるものをフィルター
+            End If
+            If sex_terms <> "" Then
+                .AutoFilter field:=4, Criteria1:=sex_terms  '性別条件が空白でないなら、4列目から性別条件に当てはまるものをフィルター
+            End If
+            If region_terms <> "" Then
+                .AutoFilter field:=8, Criteria1:=region_terms & "*"  '地区条件が空白でないなら、8列目から地区条件＋ワイルドカードに当てはまるものをフィルター
+            End If
+            Set data = .SpecialCells(xlVisible)  'フィルターして残ったもの（可視化されたもの）のみを取得
+    End With
+    
+    If data.Count = cell_num Then  '残ったもの（抽出データ）のセル数が名簿列数（11）と同じ（＝何も残っていない状態）の場合
+        MsgBox "条件に合致するデータがありません", vbInformation  '該当なしと表示、情報アイコン付き
+        Worksheets(table2).AutoFilterMode = False  'フィルター解除
+        Exit Sub
+    End If
+    Worksheets(table3).Cells.Clear  '印刷名簿の内容を転記する前に消しておく
+    data.Copy Worksheets(table3).Range("A1")  '抽出データを印刷名簿に転記
+    Worksheets(table2).AutoFilterMode = False  'フィルター解除
+    
+    Worksheets(table4).Copy after:=Worksheets(Worksheets.Count)  'ラベルのひな形をコピーして新しいシートを作成
+    
+    print_num = Worksheets(table3).Range("A1").CurrentRegion.Rows().Count - 1  '見出し行を除いた印刷名簿のデータ範囲の行数を取得
+    Set base_cell = Worksheets(table3).Range("A1")  '転記元セルを指定
+    Set destination_cell = ActiveSheet.Range("A1")  '転記先セルを指定
+    For counts = 1 To print_num  '１から抽出したデータ数まで
+        str = base_cell.Offset(counts, 6).Value & Chr(10) _
+               & base_cell.Offset(counts, 7).Value & Chr(10) _
+               & base_cell.Offset(counts, 8).Value & Chr(10) _
+               & base_cell.Offset(counts, 9).Value & Chr(10) & Chr(10) _
+               & base_cell.Offset(counts, 1).Value & "　様"
+                 '郵便番号、住所、名前の顧客情報を１つの文字列として取得、Chr(10)は改行、名前の後に様つける。
+        destination_cell.Value = str  '転記先セルに郵便番号、住所、名前の顧客情報を貼り付け
+        
+        str_num = Len(base_cell.Offset(counts, 1).Value) + 2  '印刷名簿から「　様」の分を足した名前の文字数を取得
+        start_position = Len(str) - str_num + 1  '顧客情報から名前の文字数分引き１足した開始位置を取得
+        destination_cell.Characters(start_position, str_num).Font.Size = 16  '「名前＋　様」の分だけフォントサイズを16に変更
+        
+        If counts Mod lable_num = 0 Then  '件数が偶数番目ならば
+            Set destination_cell = destination_cell.Offset(1, -(lable_num - 1) * 2)  '転記先セルを1行下、2列左に移る
+        Else  '件数が奇数番目ならば
+            Set destination_cell = destination_cell.Offset(0, 2)  '転記先セルを2列に右に移る
+        End If
+    Next
+        
+    Set destination_celll = Nothing  'セルへの参照を解除
+    Set base_cell = Nothing  'セルへの参照を解除
+    Set data = Nothing  'セルへの参照を解除
+End Sub
