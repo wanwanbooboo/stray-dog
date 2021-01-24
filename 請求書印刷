@@ -1,0 +1,78 @@
+Sub 請求書印刷()
+
+    Dim client_ID As String  'お客様番号
+    Dim data As Range  '抽出データ
+    Dim counts As Integer  '件数
+    Dim sum_cell As Range  '合計セル
+    Dim table1 As String
+    Dim table2 As String
+    Dim table3 As String
+    
+    table1 = "請求書"  '相手に送る用
+    table2 = "伝票一覧"  '未請求か請求済みか記載してある場所
+    table3 = "転記用"  '一時的に転記しておく場所
+    
+    client_ID = Worksheets(table1).Range("B3").Value  '入力されたお客様番号を取得
+    
+    With Worksheets(table2).Range("A1").CurrentRegion  '伝票一覧の表範囲を取得
+       .AutoFilter field:=3, Criteria1:=client_ID  '3列目の値がお客様番号と一致するものをフィルター
+       .AutoFilter field:=10, Criteria1:=""  'かつ10列目が空白のセルを取得
+       .Copy Destination:=Worksheets(table3).Range("A1")  'コピーし転記用に貼り付け
+
+        counts = Worksheets(table3).Range("A1").CurrentRegion.Rows.Count - 1  '転記用に転記された品目数を取得
+        If counts = 0 Then
+            MsgBox "該当データがありません"  '何も入力されていない場合
+            Worksheets(table2).AutoFilterMode = False  'フィルターを解除
+            Exit Sub
+        End If
+    End With
+
+    Set data = Worksheets(table3).Range("A1").CurrentRegion.Offset(1).Resize(counts)  '転記用のセル範囲を1行下に移動、範囲サイズを件数に変更し取得
+    data.Columns("A:B").Copy
+    Worksheets(table1).Range("A13").PasteSpecial xlPasteValuesAndNumberFormats  '日時と伝票No.をコピーしてセル値と書式を貼り付け
+    data.Columns("E:I").Copy
+    Worksheets(table1).Range("C13").PasteSpecial xlPasteValuesAndNumberFormats  '商品コード、商品名、単価、数量、金額をコピーして貼り付け
+    
+    Set sum_cell = Worksheets(table1).Range("G" & 13 + counts)  '合計セルの作成
+    With sum_cell
+        .Offset(0, -1).Value = "合計"  '"合計"と記載
+        .Value = WorksheetFunction.Sum(Worksheets(table1).Range("G13", "G" & 12 + counts))  '品目の金額の合計を算出
+        .Offset(1, -1).Value = "消費税"
+        .Offset(1).Value = .Value * 0.1  '消費税も記載
+        Worksheets(table1).Range("C8").Value = .Value + .Offset(1).Value  '金額合計と消費税を加算してわかりやすい場所に表示
+    End With
+    Worksheets(table1).PrintPreview  'プリントプレビューを表示
+    
+    'PDFの保存先ファルダ―を請求書ファイルと同じフォルダー（ThisWorkbook.Path）とし、ファイル名をお客様IDと請求書No.を「ー」でつなげた名前にする
+    'ファイルの品質は「標準」、ファイルの文書プロパティ「含める」、設定された印刷領域「無視しない」、PDFを保存後「表示する」
+    Worksheets(table1).ExportAsFixedFormat Type:=xlTypePDF, _
+        Filename:=ThisWorkbook.Path & "\" & client_ID & "_" & Worksheets(table1).Range("G4").Value, _
+        quality:=xlQualityStandard, includedocproperties:=True, _
+        ignoreprintareas:=False, openafterpublish:=True
+
+    Worksheets(table3).Cells.Clear  '転記用の全セルデータ削除
+    Worksheets(table2).AutoFilterMode = False  'フィルターモード解除
+    
+    With Worksheets(table2)
+        Dim row As Integer
+        row = 2
+        Do While .Cells(row, 3).Value <> ""  '空白セルにあたるまで繰り返す
+            If .Cells(row, 3).Value = client_ID And .Cells(row, 10).Value = "" Then  '3列目がお客様番号かつ10列目が空白のとき
+                .Cells(row, 10).Value = Worksheets(table1).Range("G3").Value  '請求した日を伝票一覧に記載
+                .Cells(row, 11).Value = Worksheets(table1).Range("G4").Value  '請求No.を伝票一覧に記載
+            End If
+            row = row + 1
+        Loop
+    End With
+    
+    With Worksheets(table1)
+        .Range("B3,A13:G32").ClearContents  '次のために請求書の入力欄を空白にしておく
+        .Range("C8").MergeArea.ClearContents  '総計金額も削除しておく
+        .Range("G4").Value = Left(.Range("G4").Value, 7) & _
+        Format(Right(.Range("G4").Value, 2) + 1, "00")  '請求書No.140430-07に1の下2桁に１を足す
+        .Range("B3").Select  '次の時のためにB3を選択しておく
+    End With
+    
+    Set data = Nothing
+    Set sum_cell = Nothing
+End Sub
