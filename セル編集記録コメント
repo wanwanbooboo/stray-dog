@@ -1,0 +1,15 @@
+Option Explicit
+
+Private Sub Worksheet_Change(ByVal Target As Range) 'イベントプロシージャであることに注意 => ワークシートに設定
+
+    If TypeName(Target.Comment) = "Comment" Then 'TypeNameはオブジェクトの種類を返す関数、”Comment”は必ず大文字
+        Target.Comment.Text Text:=Date & Chr(10) & Application.UserName & Chr(10) & Target.Value & Chr(10), Start:=1, overwrite:=False
+        'startは開始位置、Overwrite Falseは元の文字列を置換せずに挿入
+    Else
+        On Error Resume Next '複数範囲を選択変更したときはAddCommentエラーになるがむりやりやらせる
+        If Target.Value <> "" Then
+            Target.AddComment Date & Chr(10) & Application.UserName & Chr(10) & Target.Value & Chr(10)
+        End If
+    End If
+    
+End Sub
