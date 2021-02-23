@@ -1,0 +1,17 @@
+Option Explicit
+
+Private Sub Worksheet_Activate()
+
+    Dim myrange As Range
+    Set myrange = Range("A3:A30").Find(Date)
+
+    If myrange Is Nothing Then
+        MsgBox "correct the days"
+    Else
+        myrange.Offset(0, 2).Activate
+    End If
+
+    Set myrange = Nothing
+
+End Sub
+
