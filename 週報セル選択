@@ -1,5 +1,7 @@
 Option Explicit
 
+'Worksheetのselectionchangeイベントとして登録すること
+
 Private Sub Worksheet_Activate()
 
     Dim myrange As Range
