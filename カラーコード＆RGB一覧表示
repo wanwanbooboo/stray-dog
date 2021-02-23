@@ -1,0 +1,23 @@
+Option Explicit
+Sub color_list()
+    
+    Dim myrange As Range
+    Dim r As Long
+    Dim g As Long
+    Dim b As Long
+    Dim n As Long
+    Dim i As Integer
+    Set myrange = ActiveCell 'あらかじめActiveしたセルを基準とする
+    
+    For i = 0 To 56
+        myrange.Offset(i).Value = i
+        myrange.Offset(i, 1).Interior.ColorIndex = i
+        n = myrange.Offset(i, 1).Interior.Color 'RGBを取得
+        r = n \ 256 ^ 0 Mod 256
+        g = n \ 256 ^ 1 Mod 256
+        b = n \ 256 ^ 2 Mod 256
+        myrange.Offset(i, 2) = r & "," & g & "," & b
+        myrange.Offset(i, 3) = n
+    Next
+    Set myrange = Nothing
+End Sub
