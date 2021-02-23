@@ -1,6 +1,4 @@
-Option Explicit
-
-Function getProtein(myRange As Range) As String
+Private Function getProtein(myRange As Range) As String
 
     Dim start_str As String
     Dim start_num As Long
@@ -16,12 +14,12 @@ Function getProtein(myRange As Range) As String
     end_num = InStr(start_num, myRange.Value, end_str)
     str_length = end_num - start_num
 
-    If start_num - start_length = 1 Then
+    If start_num - start_length = 1 Then 'Coronavirus Envelope(C40A, C43A, C44A)SARS-CoV-2 as it is.
         getProtein = myRange.Value
     ElseIf end_num = 0 Then
-        getProtein = Mid(myRange.Value, start_num)
+        getProtein = Mid(myRange.Value, start_num) 'SARS-CoV-2 (2019-nCoV) Spike RBD Recombinant Protein => Spike RBD Recombinant Protein
     Else
-        getProtein = Mid(myRange.Value, start_num, str_length)
+        getProtein = Mid(myRange.Value, start_num, str_length) 'SARS-CoV-2 (2019-nCoV) Spike RBD(A348S)-His Recombinant Protein => Spike RBD
     End If
 
 End Function
