@@ -1,0 +1,27 @@
+Option Explicit
+
+Sub makeCalender()
+
+    Dim year As Integer
+    Dim month As Integer
+    Dim days As Integer
+    
+    year = Range("E5").Value '別シートが入力用となっている
+    month = Range("E6").Value
+    days = Day(DateSerial(year, month + 1, 0))
+
+    Worksheets.Add
+    ActiveSheet.Name = year & "年" & month & "月"
+    
+    Columns(1).ColumnWidth = 12
+    Columns(2).ColumnWidth = 60
+    Range("A1").Value = year & "年" & month & "月スケジュール表"
+    Range("A3").Value = "日付"
+    Range("B3").Value = "予定"
+    Range("A4").Value = DateSerial(year, month, 1)
+    Range("A4").AutoFill Range("A4").Resize(days)
+    Range("A4").Resize(days).NumberFormatLocal = "m月d日(aaa)"
+    
+    Range("A3:B3").Interior.ColorIndex = 34
+    Range("A3").Resize(days + 1, 2).Borders.LineStyle = xlContinuous
+End Sub
