@@ -1,0 +1,16 @@
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    
+    On Error GoTo errHandler '複数範囲を選択したときはエラーになる
+    Dim last_cell As Range
+    
+    last_cell = Cells(Rows.Count, 1).End(xlUp) '最下行取得
+    If Target.Column <> 1 Then Exit Sub '一列目以外を選択しても何も起こらない
+    If Target.Row > 3 And Target.Row < last_cell.Row Then '3行目から最下行からを選択した場合のみ発動
+        Worksheets(Target.Value).Activate
+    End If
+    End Sub
+
+errHandler:
+        MsgBox Err.Number & ":" & Err.Description
+
+End Sub
