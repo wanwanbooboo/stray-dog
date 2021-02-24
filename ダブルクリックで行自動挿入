@@ -1,0 +1,18 @@
+Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
+
+    Dim last_cell As Range
+    Set last_cell = Cells(Rows.Count, 1).End(xlUp) '最終行の取得
+    
+    If Target.Column > 6 Then Exit Sub
+    If Target.Row > 2 And Target.Row <= last_cell.Row + 1 Then
+        Range(Cells(3, 1), Cells(last_cell.Row, 5)).Rows(Target.Row - 1).Insert _
+            shift:=xlDown, copyorigin:=xlFormatFromRightOrBelow '表範囲に行を下に挿入、右または下と同じ書式を適用。
+        Cancel = False 'ダブルクリックのイベントを取り消さない
+    End If
+
+    Set last_cell = Nothing
+End Sub
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+
+End Sub
