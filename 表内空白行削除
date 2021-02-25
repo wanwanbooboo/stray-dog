@@ -1,0 +1,24 @@
+Sub space_delete()
+
+    Dim i As Integer
+    Dim dcr As Boolean '判別用 (discriminant)
+    Dim myrange As Range
+    
+    With Range("売上表2") 'あらかじめ表に名前を付けておく
+        For i = .Rows.Count To 2 Step -1 'セルをDeleteするため、下から走査
+            dcr = False 'DefaultはFalseにしておく
+            For Each myrange In Range(.Cells(i, 1), .Cells(i, 3)) '行の各セルを検査
+                If myrange.Value <> "" Then
+                    dcr = True '空白セルでないなら脱出
+                    Exit For
+                End If
+            Next
+            If dcr = False Then
+                .Rows(i).Delete '空白セルなら行を削除
+            End If
+        Next
+    End With
+
+End Sub
+
+
