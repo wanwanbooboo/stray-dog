@@ -1,0 +1,113 @@
+Option Explicit
+
+'■InternetExplorerで再度、objIEをSetしなおす。
+Sub sample_IE_shell_set_objIE()
+  
+    Dim i As Integer
+    Dim j As Long
+    Dim urlname As String
+    Dim obj1 As Object
+    Dim objnext1 As Object
+    Dim objnext2 As Object
+    Dim objnext3 As Object
+    Dim objnext4 As Object
+    Dim objnext5 As Object
+    Dim startTime As Double
+    Dim endTime As Double
+    Dim processTime As Double
+    Dim objIE As InternetExplorer
+    Dim win As Object
+    Dim winshell As Object
+    Dim data_num As Long
+    
+    '■開始時間取得
+    startTime = Timer
+    
+    '■範囲の全行数を取得
+    data_num = Range("A1").CurrentRegion.Rows.Count
+    
+  '■反復
+  For j = 1 To data_num + 1
+  
+    '■Shellオブジェクトの生成
+    Set winshell = CreateObject("Shell.Application")
+    
+    '■IEを起動
+    Set objIE = CreateObject("InternetExplorer.Application")
+    
+    '■Falseにして非表示でもよい
+    objIE.Visible = True
+    
+    '■Excelの3行目に各商品のURLが貼ってあるのを前提として、urlnameに代入
+     urlname = Cells(j, 3).Value
+     Debug.Print urlname
+     
+    '■指定したURLに飛び、Webサイトの表示を待つ
+    objIE.navigate urlname
+     
+        '■シェルオブジェクトを使用し、IEを再度掴みなおす。
+        For Each win In winshell.Windows
+            If win.Name = "Internet Explorer" Then
+                Set objIE = win
+                Exit For
+            End If
+        Next
+     
+    '■IE読み込み表示待ち
+    Do While objIE.Busy = True
+        DoEvents
+    Loop
+    Do While objIE.readyState <> READYSTATE_COMPLETE
+        DoEvents
+    Loop
+    
+    '■念のため時間空ける
+    For i = 0 To 30
+        DoEvents
+        Debug.Print i;
+    Next i
+    
+    ' ■nextElementSiblingがNullの場合エラーになる
+    On Error Resume Next
+    Set obj1 = objIE.document.getElementsByClassName("product_meta")(0)
+    Set objnext1 = obj1.nextElementSibling
+    Set objnext2 = objnext1.nextElementSibling
+    Set objnext3 = objnext2.nextElementSibling
+    Set objnext4 = objnext3.nextElementSibling
+    Set objnext5 = objnext4.nextElementSibling
+    Cells(j, 4).Value = obj1.getElementsByTagName("a")(0).innerHTML
+    Cells(j, 5).Value = objnext1.innerHTML
+    Cells(j, 6).Value = objnext2.innerHTML
+    Cells(j, 7).Value = objnext3.innerHTML
+    Cells(j, 8).Value = objnext4.innerHTML
+    Cells(j, 9).Value = objnext5.innerHTML
+    Debug.Print objnext5.innerHTML
+    
+    '■念のため時間空ける
+    For i = 0 To 16
+        DoEvents
+        Debug.Print i;
+    Next i
+    
+    '■表示されているIEを閉じる
+    objIE.Quit
+    
+    '■再度IEを開く前にメモリを解放
+    Set objIE = Nothing
+    Set winshell = Nothing
+    Set obj1 = Nothing
+    Set objnext1 = Nothing
+    Set objnext2 = Nothing
+    Set objnext3 = Nothing
+    Set objnext4 = Nothing
+    Set objnext5 = Nothing
+  Next j
+  
+    '■終了時間取得
+    endTime = Timer
+    
+    '■処理時間計算
+    processTime = endTime - startTime
+    Debug.Print processTime
+    MsgBox processTime & "秒"
+End Sub
