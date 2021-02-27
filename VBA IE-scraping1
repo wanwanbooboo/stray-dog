@@ -1,0 +1,81 @@
+#If VBA7 Then '処理を停止するWindows APIのSleep関数を使用できるようにAPIを宣言する、上が64bit版、下が32bit版。
+Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal ms As LongPtr)
+#Else
+Private Declare Sub Sleep Lib "kernel32" (ByVal ms As Long)
+#End If
+
+Sub product_extract_list()
+
+  Dim objIE  As New InternetExplorer
+  Dim i As Long
+  Dim j As Long
+  Dim data_num As Long
+  Dim a_num As Long
+
+  data_num = 0
+    For j = 1 To 20
+      If j = 1 Then
+        Call ieView(objIE, "https://www.immunoprecise.com/products/?sort=catalog", False)
+      Else
+        Call ieView(objIE, "https://www.immunoprecise.com/products/page/" & j & "/?sort=catalog", False)
+      End If
+      
+      a_num = objIE.document.getElementsByClassName("product-container").Length
+      For i = 0 To a_num - 1
+        Cells(data_num + i + 1, 1).Value = i + data_num
+        Cells(data_num + i + 1, 2).Value = objIE.document.getElementsByClassName("product-container")(i).getElementsByTagName("a")(0).innerHTML
+        Cells(data_num + i + 1, 3).Value = objIE.document.getElementsByClassName("product-container")(i).getElementsByTagName("a")
+      Next i
+      data_num = data_num + a_num
+  Next j
+End Sub
+
+Sub ieView(objIE As InternetExplorer, urlname As String, Optional viewFlg As Boolean = True)
+
+  'IE(InternetExplorer)のオブジェクトを作成する
+  'Set objIE = CreateObject("InternetExplorer.Application")
+  Set ie = New InternetExplorerMedium
+  'IE(InternetExplorer)を表示・非表示、ここではviewFlgがTrueなので表示、省略したいときはFalseを入れる
+  objIE.Visible = viewFlg
+
+  '指定したURLのページを表示する
+  objIE.navigate urlname
+ 
+ 'IEが完全表示されるまで待機
+ Call ieCheck(objIE)
+
+End Sub
+
+
+Sub ieCheck(objIE As InternetExplorer)
+
+  Dim timeout As Date
+
+  '完全にページが表示されるまで待機する、（変数timeOutに処理時間+20秒を加算した時間を代入）
+  timeout = Now + TimeSerial(0, 0, 20)
+    
+    'InternetExplorerオブジェクトの状態をチェック
+    'Busy=Trueは読み込み中、ReadyStateプロパティの「4」は読み込み完了状態を表す、
+  Do While objIE.Busy = True Or objIE.readyState <> 4
+    DoEvents
+    Sleep 1 '1 ms待機
+    If Now > timeout Then '一定時間経っても読み込まない場合、無限ループを防ぐためRefresh
+      objIE.Refresh
+      timeout = Now + TimeSerial(0, 0, 20)
+    End If
+  Loop
+
+  timeout = Now + TimeSerial(0, 0, 20)
+
+    'Documentオブジェクトの状態をチェック
+  Do While objIE.document.readyState <> "complete" 'completeはdocumentオブジェクトの読み込み完了。
+    DoEvents
+    Sleep 1
+    If Now > timeout Then
+      objIE.Refresh
+      timeout = Now + TimeSerial(0, 0, 20)
+    End If
+   Loop
+
+ '２つのループを抜ければ完全に読み込み完了になる
+End Sub
