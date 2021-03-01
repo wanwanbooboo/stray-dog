@@ -1,0 +1,32 @@
+Sub elapsedtime()
+
+    Dim elapsedtime(2)
+    '画面更新をあらかじめオンに設定
+    Application.ScreenUpdating = True
+    '画面更新オン/オフで二回行う
+    For i = 1 To 2
+    
+        '二回目は画面更新オフでトライ
+        If i = 2 Then Application.ScreenUpdating = False
+        startTime = Time
+        Worksheets("Sheet1").Activate
+        
+        '偶数列を非表示にする
+        For Each c In ActiveSheet.Columns
+            If c.Column Mod 2 = 0 Then
+                c.Hidden = True
+            End If
+        Next c
+        stopTime = Time
+        elapsedtime(i) = (stopTime - startTime) * 24 * 60 * 60
+    Next i
+    
+    '必ず画面更新はオンに戻しておく
+    Application.ScreenUpdating = True
+    MsgBox "更新がオンの状態での所要時間は " & elapsedtime(1) & _
+            " 秒: " & Chr(13) & _
+            "更新がオフの状態での所要時間は " & elapsedtime(2) & _
+            " 秒"
+
+End Sub
+
