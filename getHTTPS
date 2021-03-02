@@ -1,0 +1,23 @@
+Function getHTTPS(myRange As Range) As String
+
+    Dim start_str As String
+    Dim start_num As Long
+    Dim start_length As Long
+    Dim end_str As String
+    Dim end_num As Long
+    Dim str_length As Long
+        
+    start_str = "https://www."
+    end_str = ".pdf"
+    start_length = Len(start_str)
+    start_num = InStr(myRange.Value, start_str)
+    end_num = InStr(start_num, myRange.Value, end_str) + 4
+    str_length = end_num - start_num
+
+    If myRange.Value = "" Then
+        getHTTPS = 0
+    Else
+        getHTTPS = Mid(myRange.Value, start_num, str_length)
+    End If
+
+End Function
