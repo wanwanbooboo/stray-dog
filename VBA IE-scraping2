@@ -68,6 +68,7 @@ Sub IE_shell_set_objIE()
         
     '■表示されているIEを閉じる
     objIE.Quit
+    Sleep 350
     
     '■再度IEを開く前にメモリを解放
     Set objIE = Nothing
@@ -120,7 +121,7 @@ Sub ieCheck(objIE As InternetExplorer)
     'Busy=Trueは読み込み中、ReadyStateプロパティの「4」は読み込み完了状態を表す、
   Do While objIE.Busy = True Or objIE.readyState <> 4
     DoEvents
-    Sleep 1 '1 ms待機
+    Sleep 300 '300 ms待機
     If Now > timeout Then '一定時間経っても読み込まない場合、無限ループを防ぐためRefresh
       objIE.Refresh
       timeout = Now + TimeSerial(0, 0, 20)
@@ -132,7 +133,7 @@ Sub ieCheck(objIE As InternetExplorer)
     'Documentオブジェクトの状態をチェック
   Do While objIE.document.readyState <> "complete" 'completeはdocumentオブジェクトの読み込み完了。
     DoEvents
-    Sleep 1
+    Sleep 300
     If Now > timeout Then
       objIE.Refresh
       timeout = Now + TimeSerial(0, 0, 20)
