@@ -1,0 +1,23 @@
+Private Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal ms As Long)
+Option Explicit
+
+Sub SeleniumBasic01()
+
+    Dim driver As New Selenium.WebDriver
+    Dim doc As String
+    Dim mail As String
+    Dim password As String
+    
+        mail = "detodetokento@gmail.com"
+        password = "kento1996"
+    
+        With driver
+               .Start "chrome"
+               .Get "https://user.freshers.globis.co.jp/app/login"
+               .FindElementByXPath("//*[@id=""gooc-app-outer-small-screen""]/div/div/div[2]/form/input[1]").SendKeys mail
+               .FindElementByXPath("//*[@id=""gooc-app-outer-small-screen""]/div/div/div[2]/form/input[2]").SendKeys password
+               .FindElementByXPath("//*[@id=""gooc-app-outer-small-screen""]/div/div/div[2]/form/button").Click
+               Sleep 5000
+        End With
+           
+End Sub
