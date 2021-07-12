@@ -1,0 +1,73 @@
+Option Explicit
+
+'メインルーチン
+Public Sub reshapeData()
+
+    Dim ws1 As Worksheet: Set ws1 = Worksheets("①テキスト取込用")
+    Application.ScreenUpdating = False
+    
+    '貼付されたデータを新しいシートにコピー
+    ws1.Copy after:=ws1
+    ActiveSheet.Name = "整形済データ"
+    Dim ws2 As Worksheet: Set ws2 = Worksheets("整形済データ")
+    
+    'CとDの間に一列追加
+    ws2.Range("D1").EntireColumn.Insert shift:=xlShiftToRight
+    ws2.Range("D1").Value = "退職時_社員住所02"
+    
+    '最終行の取得
+    Dim lastrow As Long: lastrow = ws2.Cells(Rows.Count, 8).End(xlUp).Row
+    Debug.Print lastrow
+    
+    '[]をつける列番号の変数を宣言
+    Dim BK As Long: BK = Range("BK1").Column
+    Dim BU As Long: BU = Range("BU1").Column
+    Dim CW As Long: CW = Range("CW1").Column
+    Dim DI As Long: DI = Range("DI1").Column
+    Dim FG As Long: FG = Range("FG1").Column
+    Dim FQ As Long: FQ = Range("FQ1").Column
+    Dim GC As Long: GC = Range("GC1").Column
+    Dim GY As Long: GY = Range("GY1").Column
+    
+    'それぞれの列ごとに[]をつけていく
+    Call addBrackets(ws2, lastrow, BK)
+    Call addBrackets(ws2, lastrow, BU)
+    Call addBrackets(ws2, lastrow, CW)
+    Call addBrackets(ws2, lastrow, DI)
+    Call addBrackets(ws2, lastrow, FG)
+    Call addBrackets(ws2, lastrow, FQ)
+    Call addBrackets(ws2, lastrow, GC)
+    Call addBrackets(ws2, lastrow, GY)
+    
+    
+    
+
+    Application.ScreenUpdating = True
+End Sub
+
+'[]をつけるサブルーチン
+Public Sub addBrackets(ws2 As Worksheet, lastrow As Long, col As Long)
+
+    Dim i As Long
+    Dim arry
+
+    With ws2
+    
+        '動的配列に範囲を格納
+        arry = .Range(.Cells(1, col), .Cells(lastrow, col))
+        
+        '文字列があれば前後に[と]をつける
+        For i = LBound(arry, 1) + 1 To UBound(arry, 1)
+            If arry(i, 1) <> "" Then
+                arry(i, 1) = "[" & arry(i, 1) & "]"
+            End If
+        Next i
+        
+        'セルに加工した文字列を反映
+        .Range(.Cells(1, col), .Cells(lastrow, col)) = arry
+
+    End With
+
+End Sub
+
+
