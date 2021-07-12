@@ -1,0 +1,77 @@
+Option Explicit
+
+'+===============================================================+
+'| Geneから出力したデータとたよれ～るから出力したデータの        |                                             |
+'| 差分を抽出して表示するマクロ。                                |
+'| (差分を行ごと削除するのはデバッグしにくいためここではやらない)|
+'+===============================================================+
+
+Sub Vlookup()
+
+    '連想配列の宣言およびインスタンス化
+    Dim myDic As Object
+    Set myDic = CreateObject("Scripting.Dictionary")
+    
+    '変数の準備
+    Dim i As Integer
+    Dim j As Integer
+    
+    'Geneから出力したデータ
+    Set ws1 = Worksheets("練習用")
+    
+    'たよれ～るから出力したデータ
+    Set ws2 = Worksheets("Sheet1")
+    
+    '差分表示用シートの作成
+    Worksheets.Add(after:=Worksheets(Worksheets.Count)).Name = "抽出データ" & Worksheets.Count
+    Set ws3 = Worksheets("抽出データ" & Worksheets.Count - 1)
+    
+    'たよれ～るマスタにある社員コードをキーとして連想配列に格納
+    With ws2
+        For i = 1 To .Cells(Rows.Count, 1).End(xlUp).Row
+            If Not myDic.exists(.Cells(i, 1).Value) Then
+                myDic.Add .Cells(i, 1).Value, .Cells(i, 2).Value
+            End If
+        Next i
+    End With
+    
+    'Gene出力データから連想配列にないデータを探していく
+    With ws1
+        j = 1
+        
+        '最右列の列番号を取得
+        Dim col_num As Integer: col_num = .Cells(1, Columns.Count).End(xlToLeft).Column
+        
+        'ヘッダーを差分抽出用シートに転記
+        ws3.Range(ws3.Cells(1, 1), ws3.Cells(1, col_num)).Value = .Range(.Cells(1, 1), .Cells(1, col_num)).Value
+        
+        '行ごと削除する場合も考えて、最下行から実行
+        For i = .Cells(Rows.Count, 8).End(xlUp).Row To 1 Step -1
+        
+            'もし連想配列に存在しないキーならば差分表示用シートに転記
+            If Not myDic.exists(.Cells(i, 8).Value) Then
+            
+                '存在しない社員コードの行ごと転記
+                ws3.Range(ws3.Cells(j, 1), ws3.Cells(j, col_num)).Value = .Range(.Cells(i, 1), .Cells(i, col_num)).Value
+                j = j + 1
+                
+                '差分の社員コードに赤色をつけていく
+                .Cells(i, 8).Interior.Color = RGB(255, 0, 0)
+                
+                '.Range(Cells(i, 1), Cells(i, col_num)).Delete
+            End If
+        Next i
+    End With
+
+    '社員コードに差分がなかったらメッセージ表示
+    If j = 1 Then
+        MsgBox "There is no match in Employee Code."
+    End If
+    
+    Debug.Print j
+    Set myDic = Nothing
+    Set ws1 = Nothing
+    Set ws2 = Nothing
+    Set ws3 = Nothing
+
+End Sub
