@@ -21,7 +21,7 @@ def send_msg(sock,msg):
 
 def recv_msg(sock,chunk_len=1024):
   """ソケットから接続が終わるまでバイト列を読み込むジェネレータ関数"""
-  while true:
+  while True:
     #ソケットから指定したバイト数を読み込む
     received_chunk=sock.recv(chunk_len)
     #まったく読めなかったときは接続が終了している
