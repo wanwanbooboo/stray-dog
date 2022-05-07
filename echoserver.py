@@ -50,7 +50,7 @@ def main():
   #ソケットからバイト列を読み込む
   for received_msg in recv_msg(client_socket):
     #読み込んだ内容をそのままソケットに書き込む（エコーバック）
-    send_msg(cilent_socket,received_msg)
+    send_msg(client_socket,received_msg)
     #送受信した内容を出力しておく
     print(f'echo:{received_msg}')
   #使い終わったソケットをクローズする
