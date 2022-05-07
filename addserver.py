@@ -54,7 +54,7 @@ def main():
   #接続してきたクライアントの情報を表示する
   print(f'accepted from {client_address}:{client_port}')
   #バイト列を受信する
-  received_msg=b''.join(recv_msg(client_socket,total_msg_size=8)
+  received_msg=b''.join(recv_msg(client_socket,total_msg_size=8))
   #受信したバイト列を表示
   print(f'received:{received_msg}')
   #バイト列を2つの32ビットの整数として解釈する
